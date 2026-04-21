@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pre-Order Form</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: url("bgbubble.png") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+    }
+
+    .container {
+      width: 420px;
+      margin: auto;
+      margin-top: 60px;
+      background: rgba(131, 221, 248, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    input, select {
+      width: 95%;
+      padding: 8px;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: none;
+      background-color: #95eec9;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #eaec75;
+    }
+
+    #errorMsg {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Science Project Pre-Order</h2>
+
+<p>
+Introducing BaryoBubble: Organic Herbal Soaps and Effervescent Tablets for hygiene.
+Choose from different variants depending on your needs.
+You may order soap, tablets, or both.
+Pre-order now for convenience.
+</p>
+
+<div id="errorMsg"></div>
+
+<form onsubmit="return handleOrder()">
+
+<label>Customer Name:</label>
+<input type="text" id="name">
+
+<label>BaryoBubble Soap</label>
+<select id="variantsoap">
+  <option value="">Select</option>
+  <option value="Lemongrass-10.99">Lemongrass (PHP 10.99)</option>
+  <option value="Guava Leaf-10.99">Guava Leaf (PHP 10.99)</option>
+</select>
+
+<label>Soap Quantity:</label>
+<input type="number" id="quantitySoap">
+
+<label>BaryoBubble Effervescent Tablet</label>
+<select id="varianttablet">
+  <option value="">Select</option>
+  <option value="6pcs-30">1 bottle (6pcs) (PHP 30)</option>
+  <option value="12pcs-60">1 can (12pcs) (PHP 60)</option>
+  <option value="24pcs-120">1 box (24pcs) (PHP 120)</option>
+</select>
+
+<label>Tablet Quantity:</label>
+<input type="number" id="quantityTablet">
+
+<label>Pickup Method:</label>
+<select id="pickup">
+  <option value="">Select</option>
+  <option value="Delivery">Delivery</option>
+  <option value="Meetup">Meetup</option>
+</select>
+
+<label>Address (for Delivery only):</label>
+<input type="text" id="address">
+
+<label>
+<input type="checkbox" id="terms"> Accept Terms
+</label>
+
+<button type="button" onclick="loadPreviousOrder()">Load Previous Order</button>
+<button type="submit">Submit</button>
+
+</form>
+
+</div>
+
+<script>
+
+function setCookie(name, value, maxAge) {
+  document.cookie = name + "=" + value + ";max-age=" + maxAge + ";path=/";
+}
+
+function getCookie(name) {
+  let cookies = document.cookie.split("; ");
+  for (let c of cookies) {
+    let parts = c.split("=");
+    if (parts[0] === name) return parts[1];
+  }
+  return "";
+}
+
+function validateForm(name, variantsoap, varianttablet, quantitySoap, quantityTablet, pickup, address, terms) {
+  let errors = [];
+
+  if (!name || !pickup) errors.push("Name and pickup must not be empty");
+
+  if (!variantsoap && !varianttablet) {
+    errors.push("Select at least one product");
+  }
+
+  if (variantsoap && quantitySoap <= 0) {
+    errors.push("Soap quantity must be greater than 0");
+  }
+
+  if (varianttablet && quantityTablet <= 0) {
+    errors.push("Tablet quantity must be greater than 0");
+  }
+
+  if (!terms) errors.push("You must accept the terms");
+
+  if (pickup === "Delivery" && !address) {
+    errors.push("Address is required for delivery");
+  }
+
+  return errors;
+}
+
+function handleOrder() {
+
+  document.getElementById("errorMsg").innerHTML = "";
+
+  let name = document.getElementById("name").value;
+  let variantsoap = document.getElementById("variantsoap").value;
+  let varianttablet = document.getElementById("varianttablet").value;
+  let quantitySoap = document.getElementById("quantitySoap").value || 0;
+  let quantityTablet = document.getElementById("quantityTablet").value || 0;
+  let pickup = document.getElementById("pickup").value;
+  let address = document.getElementById("address").value;
+  let terms = document.getElementById("terms").checked;
+
+  let errors = validateForm(name, variantsoap, varianttablet, quantitySoap, quantityTablet, pickup, address, terms);
+
+  if (errors.length > 0) {
+    document.getElementById("errorMsg").innerHTML = errors.join("<br>");
+    return false;
+  }
+
+  if (!variantsoap) {
+    variantsoap = "N/A";
+    quantitySoap = 0;
+  }
+
+  if (!varianttablet) {
+    varianttablet = "N/A";
+    quantityTablet = 0;
+  }
+
+  setCookie("customerName", name, 86400);
+
+  localStorage.setItem("variantsoap", variantsoap);
+  localStorage.setItem("quantitySoap", quantitySoap);
+  localStorage.setItem("varianttablet", varianttablet);
+  localStorage.setItem("quantityTablet", quantityTablet);
+  localStorage.setItem("pickup", pickup);
+  localStorage.setItem("address", address);
+
+  window.location.href = "summary.html";
+  return false;
+}
+
+function loadPreviousOrder() {
+  let name = getCookie("customerName");
+
+  if (!name) {
+    document.getElementById("errorMsg").innerHTML = "No previous order data";
+    return;
+  }
+
+  document.getElementById("name").value = name;
+  document.getElementById("variantsoap").value = localStorage.getItem("variantsoap");
+  document.getElementById("quantitySoap").value = localStorage.getItem("quantitySoap");
+  document.getElementById("varianttablet").value = localStorage.getItem("varianttablet");
+  document.getElementById("quantityTablet").value = localStorage.getItem("quantityTablet");
+  document.getElementById("pickup").value = localStorage.getItem("pickup");
+  document.getElementById("address").value = localStorage.getItem("address");
+}
+
+</script>
+
+</body>
+</html>

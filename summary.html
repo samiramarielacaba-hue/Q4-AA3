@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Summary</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: url("bgbubble.png") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+    }
+
+    .container {
+      width: 400px;
+      margin: auto;
+      margin-top: 80px;
+      background: #83ddf8f2;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Order Summary</h2>
+
+<p><strong>Name:</strong> <span id="name"></span></p>
+
+<p><strong>Soap:</strong> <span id="soap"></span></p>
+<p><strong>Soap Qty:</strong> <span id="qSoap"></span></p>
+
+<p><strong>Tablet:</strong> <span id="tablet"></span></p>
+<p><strong>Tablet Qty:</strong> <span id="qTablet"></span></p>
+
+<p><strong>Total Amount:</strong> <span id="total"></span></p>
+
+<p><strong>Pickup:</strong> <span id="pickup"></span></p>
+<p><strong>Address:</strong> <span id="address"></span></p>
+
+<p><strong>Thank you for your order!</strong></p>
+
+</div>
+
+<script>
+
+function getCookie(name) {
+  let cookies = document.cookie.split("; ");
+  for (let c of cookies) {
+    let parts = c.split("=");
+    if (parts[0] === name) return parts[1];
+  }
+  return "";
+}
+
+let name = getCookie("customerName");
+let soap = localStorage.getItem("variantsoap");
+let tablet = localStorage.getItem("varianttablet");
+let qSoap = localStorage.getItem("quantitySoap");
+let qTablet = localStorage.getItem("quantityTablet");
+let pickup = localStorage.getItem("pickup");
+let address = localStorage.getItem("address");
+
+// extract prices
+let soapPrice = 0;
+let tabletPrice = 0;
+
+if (soap !== "N/A") {
+  soapPrice = parseFloat(soap.split("-")[1]);
+}
+
+if (tablet !== "N/A") {
+  tabletPrice = parseFloat(tablet.split("-")[1]);
+}
+
+let total = (soapPrice * qSoap) + (tabletPrice * qTablet);
+
+// display
+document.getElementById("name").textContent = name;
+document.getElementById("soap").textContent = soap;
+document.getElementById("qSoap").textContent = qSoap;
+document.getElementById("tablet").textContent = tablet;
+document.getElementById("qTablet").textContent = qTablet;
+document.getElementById("total").textContent = "PHP " + total.toFixed(2);
+document.getElementById("pickup").textContent = pickup;
+document.getElementById("address").textContent = pickup === "Delivery" ? address : "N/A";
+
+</script>
+
+</body>
+</html>
